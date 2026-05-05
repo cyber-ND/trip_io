@@ -1,0 +1,5 @@
+node_modules/
+.env
+coverage/
+swagger/swagger.json
+TRIP_IO_SKILL.md
