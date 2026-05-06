@@ -1,41 +1,47 @@
 const mongoose = require('mongoose');
+const Driver = require('./driver.model');
 
 const ratingSchema = new mongoose.Schema(
-  {
-    ride: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Ride',
-      required: true,
-      unique: true, // One rating per ride
+    {
+        rideId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Ride',
+            required: true,
+            unique: true,
+        },
+        riderId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        driverId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        stars: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5,
+        },
+        comment: {
+            type: String,
+            trim: true,
+        },
     },
-    rider: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    driver: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // The driver user
-      required: true,
-    },
-    rating: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 5,
-    },
-    comment: {
-      type: String,
-      trim: true,
-    },
-  },
-  {
-    timestamps: true,
-  }
+    {
+        timestamps: true,
+    }
 );
 
-// We can add a post-save hook here to update the Driver's average rating in the future,
-// or handle it in the controller/service layer.
+ratingSchema.post('save', async function () {
+    const driver = await Driver.findOne({ userId: this.driverId });
+    if (!driver) return;
+    const newTotal = driver.totalRatings + 1;
+    const newRating = ((driver.rating * driver.totalRatings) + this.stars) / newTotal;
+    await Driver.findByIdAndUpdate(driver._id, { rating: newRating, totalRatings: newTotal });
+});
 
 const Rating = mongoose.model('Rating', ratingSchema);
 
