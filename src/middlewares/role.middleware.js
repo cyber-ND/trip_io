@@ -1,6 +1,6 @@
 
 
-export const authorize = (...roles) => {
+const authorize = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return res.status(403).json({ message: 'Forbidden' });
@@ -8,3 +8,5 @@ export const authorize = (...roles) => {
         next();
     };
 };
+
+module.exports = { authorize };

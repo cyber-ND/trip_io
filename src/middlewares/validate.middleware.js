@@ -1,5 +1,5 @@
 
-export const validate = (schema) => (req, res, next) => {
+const validate = (schema) => (req, res, next) => {
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
@@ -13,9 +13,11 @@ export const validate = (schema) => (req, res, next) => {
             message: 'Validation failed',
             errors: formattedErrors,
         });
-    
+
 }
 
 req.validatedData = result.data;
 next();
 }
+
+module.exports = { validate };

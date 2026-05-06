@@ -1,6 +1,6 @@
 
 // I just thought we'll have a need for this
-export class AppError extends Error {
+class AppError extends Error {
     constructor(message, statusCode) {
         super(message);
         this.statusCode = statusCode;
@@ -8,7 +8,7 @@ export class AppError extends Error {
 } // We could use it like this: throw new AppError('User not found', 404); much later in our logic
 
 // This is the general error handler
-export const errorhandler = (err, req, res, next) => {
+const errorhandler = (err, req, res, next) => {
     console.error('Error:', err.message);
 
     let statusCode = err.statusCode || 500;
@@ -24,10 +24,12 @@ export const errorhandler = (err, req, res, next) => {
         message = 'Token expired';
     }
 
-    
+
     res.status(statusCode).json({
         success: false,
         message,
         ...process.env.NODE_ENV === 'development' && { stack: err.stack }
     });
 }
+
+module.exports = { AppError, errorhandler };
