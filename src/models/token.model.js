@@ -1,35 +1,32 @@
 const mongoose = require('mongoose');
 
 const tokenSchema = new mongoose.Schema(
-  {
-    token: {
-      type: String,
-      required: true,
-      index: true,
+    {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        token: {
+            type: String,
+            required: true,
+            index: true,
+        },
+        expiresAt: {
+            type: Date,
+            required: true,
+        },
+        blacklisted: {
+            type: Boolean,
+            default: false,
+        },
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    type: {
-      type: String,
-      enum: ['refresh', 'resetPassword', 'verifyEmail'],
-      required: true,
-    },
-    expires: {
-      type: Date,
-      required: true,
-    },
-    blacklisted: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  {
-    timestamps: true,
-  }
+    {
+        timestamps: true,
+    }
 );
+
+tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const Token = mongoose.model('Token', tokenSchema);
 

@@ -1,33 +1,34 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user.model');
+const logger = require('../utils/logger');
 
-const authenticate = (req, res, next) => {
+const protect = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({
-            message: 'Unauthorized' });
-}
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
 
     const token = authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({
-            message: 'Unauthorized' });
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
-    try{
+    try {
         const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-        req.user = decoded;
+        const user = await User.findById(decoded.userId);
+
+        if (!user || !user.isActive) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        req.user = user;
         next();
-
     } catch (error) {
-        // I thought we should log error
-        console.error('Auth error:', error.message);
-
-        return res.status(401).json({
-            message: 'unauthorized' });
+        logger.error('Auth error: ' + error.message);
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
+};
 
-}
-
-module.exports = { authenticate };
+module.exports = { protect };
