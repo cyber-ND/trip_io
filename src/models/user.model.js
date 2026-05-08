@@ -5,42 +5,52 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, "Name is required"],
       trim: true,
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       trim: true,
       lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
+      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
     },
     password: {
       type: String,
       required: function () {
-        return !this.googleId;
+        return this.authProvider === "local";
       },
       minlength: 8,
       select: false,
     },
     role: {
       type: String,
-      enum: ['rider', 'driver', 'admin'],
-      default: 'rider',
+      enum: ["rider", "driver", "admin"],
+      default: "rider",
     },
     phoneNumber: {
       type: String,
       trim: true,
     },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
     googleId: {
       type: String,
       unique: true,
       sparse: true,
+      select: false,
     },
-    avatar: {
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    profilePhoto: {
       type: String,
-      default: '',
+      default: "",
     },
     isEmailVerified: {
       type: Boolean,
@@ -49,7 +59,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Hash password before saving

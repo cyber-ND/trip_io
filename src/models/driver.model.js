@@ -1,46 +1,50 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const driverSchema = new mongoose.Schema(
   {
-    user: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       unique: true,
     },
-    vehicleDetails: {
+    vehicle: {
+      make: {
+        type: String,
+        required: [true, "Vehicle make is required"],
+      },
       model: {
         type: String,
-        required: [true, 'Vehicle model is required'],
+        required: [true, "Vehicle model is required"],
+      },
+      year: {
+        type: Number,
+        required: [true, "Vehicle year is required"],
       },
       plateNumber: {
         type: String,
-        required: [true, 'Plate number is required'],
+        required: [true, "Plate number is required"],
         unique: true,
+        uppercase: true,
+        trim: true,
       },
-      color: {
+      colour: {
         type: String,
-        required: [true, 'Vehicle color is required'],
+        required: [true, "Vehicle colour is required"],
       },
+    },
+    licenseNumber: {
+      type: String,
+      required: [true, "License number is required"],
+      unique: true,
+    },
+    isAvailable: {
+      type: Boolean,
+      default: false,
     },
     isApproved: {
       type: Boolean,
       default: false,
-    },
-    isOnline: {
-      type: Boolean,
-      default: false,
-    },
-    currentLocation: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        default: 'Point',
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        default: [0, 0],
-      },
     },
     rating: {
       type: Number,
@@ -52,15 +56,29 @@ const driverSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    totalRides: {
+      type: Number,
+      default: 0,
+    },
+    currentLocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        default: [0, 0],
+      },
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-// Index for geospatial queries
-driverSchema.index({ currentLocation: '2dsphere' });
+driverSchema.index({ currentLocation: "2dsphere" });
 
-const Driver = mongoose.model('Driver', driverSchema);
+const Driver = mongoose.model("Driver", driverSchema);
 
 module.exports = Driver;
