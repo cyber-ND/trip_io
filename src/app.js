@@ -19,7 +19,7 @@ try {
   if (swaggerSpec && typeof swaggerSpec === 'object') {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
   }
-} catch (_) {}
+} catch (err) { logger.warn('Swagger not loaded: ' + err.message) }
 
 app.use(errorHandler)
 
