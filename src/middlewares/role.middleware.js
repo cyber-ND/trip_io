@@ -1,10 +1,12 @@
+const apiResponse = require("../utils/apiResponse")
+
 const allowRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: "Forbidden" });
+      return apiResponse.error(res, "Forbidden", 403)
     }
-    next();
-  };
-};
+    next()
+  }
+}
 
-module.exports = { allowRoles };
+module.exports = { allowRoles }
