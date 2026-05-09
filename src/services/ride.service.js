@@ -23,12 +23,21 @@ const findAndNotifyDriver = async (ride, excludeDriverUserId = null) => {
 
   const driver = await Driver.findOne(query);
 
+<<<<<<< HEAD
   if (driver) {
     ride.driverId = driver.userId;
     ride.status = "pending";
     await ride.save();
     logger.info(`Ride ${ride._id} assigned to driver ${driver.userId}`);
   }
+=======
+  ride.status = "pending";
+  if (driver) {
+    ride.driverId = driver.userId;
+    logger.info(`Ride ${ride._id} assigned to driver ${driver.userId}`);
+  }
+  await ride.save();
+>>>>>>> 5bd16010a17c31af57de020611542e78b7985c01
 
   return ride;
 };
@@ -141,7 +150,11 @@ const getMyRides = async (userId, role, { page = 1, limit = 10 } = {}) => {
   const [items, total] = await Promise.all([
     Ride.find(filter)
       .populate("riderId", "name email")
+<<<<<<< HEAD
       .populate("driverId", "name email")
+=======
+      .populate("driverId", "name email phoneNumber")
+>>>>>>> 5bd16010a17c31af57de020611542e78b7985c01
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit)),

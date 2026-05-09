@@ -29,10 +29,19 @@ const registerUser = async ({ name, email, password, role, phoneNumber }) => {
   const existing = await User.findOne({ email });
   if (existing) throw new Error("Email already in use");
 
+<<<<<<< HEAD
   const user = await User.create({ name, email, password, role, phoneNumber });
   const { accessToken, refreshToken } = generateTokens(user._id, user.role);
   await saveRefreshToken(user._id, refreshToken);
 
+=======
+  const safeRole = ["rider", "driver"].includes(role) ? role : "rider";
+  const user = await User.create({ name, email, password, role: safeRole, phoneNumber });
+  const { accessToken, refreshToken } = generateTokens(user._id, user.role);
+  await saveRefreshToken(user._id, refreshToken);
+
+  user.password = undefined;
+>>>>>>> 5bd16010a17c31af57de020611542e78b7985c01
   return { user, accessToken, refreshToken };
 };
 
@@ -83,6 +92,10 @@ const googleLogin = async (idToken) => {
   const { accessToken, refreshToken } = generateTokens(user._id, user.role);
   await saveRefreshToken(user._id, refreshToken);
 
+<<<<<<< HEAD
+=======
+  user.googleId = undefined;
+>>>>>>> 5bd16010a17c31af57de020611542e78b7985c01
   return { user, accessToken, refreshToken };
 };
 
