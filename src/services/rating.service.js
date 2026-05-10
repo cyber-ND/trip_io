@@ -1,13 +1,14 @@
 const Rating = require("../models/rating.model");
 const Ride = require("../models/ride.model");
 
-const rateDriver = async ({ rideId, riderId, driverId, stars, comment }) => {
+const rateDriver = async ({ rideId, riderId, stars, comment }) => {
   const ride = await Ride.findById(rideId);
   if (!ride) throw new Error("Ride not found");
   if (ride.status !== "completed")
     throw new Error("Can only rate a completed ride");
   if (String(ride.riderId) !== String(riderId))
     throw new Error("Not your ride");
+  if (!ride.driverId) throw new Error("No driver assigned to this ride");
 
   const existing = await Rating.findOne({ rideId });
   if (existing) throw new Error("Ride has already been rated");
@@ -15,7 +16,7 @@ const rateDriver = async ({ rideId, riderId, driverId, stars, comment }) => {
   const rating = await Rating.create({
     rideId,
     riderId,
-    driverId,
+    driverId: ride.driverId,
     stars,
     comment,
   });
