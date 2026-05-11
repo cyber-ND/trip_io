@@ -1,5 +1,7 @@
+const crypto = require('crypto')
 const paymentService = require('../services/payment.service')
 const apiResponse = require('../utils/apiResponse')
+const env = require('../config/env')
 
 const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
@@ -30,4 +32,21 @@ const getAllPayments = asyncHandler(async (req, res) => {
   return apiResponse.success(res, 'All payments fetched', result)
 })
 
-module.exports = { initiatePayment, getPaymentByRide, getMyPayments, getAllPayments }
+const paystackWebhook = asyncHandler(async (req, res) => {
+  const signature = req.headers['x-paystack-signature']
+  if (!signature) return apiResponse.error(res, 'Missing signature', 400)
+
+  const hash = crypto
+    .createHmac('sha512', env.PAYSTACK_SECRET_KEY)
+    .update(req.rawBody)
+    .digest('hex')
+
+  if (hash !== signature) return apiResponse.error(res, 'Invalid webhook signature', 401)
+
+  const { event, data } = req.body
+  await paymentService.handlePaystackWebhook(event, data)
+
+  return apiResponse.success(res, 'Webhook received')
+})
+
+module.exports = { initiatePayment, getPaymentByRide, getMyPayments, getAllPayments, paystackWebhook }

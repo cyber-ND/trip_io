@@ -77,4 +77,19 @@ const getAllPayments = async ({ page = 1, limit = 10 } = {}) => {
   }
 }
 
-module.exports = { initiatePayment, getPaymentByRide, getMyPayments, getAllPayments }
+const handlePaystackWebhook = async (event, data) => {
+  if (event !== 'charge.success') return
+
+  const paymentId = data?.metadata?.paymentId
+  if (!paymentId) return
+
+  const payment = await Payment.findById(paymentId)
+  if (!payment || payment.status === 'completed') return
+
+  payment.status = 'completed'
+  payment.paidAt = new Date()
+  payment.paystackReference = data.reference || null
+  await payment.save()
+}
+
+module.exports = { initiatePayment, getPaymentByRide, getMyPayments, getAllPayments, handlePaystackWebhook }

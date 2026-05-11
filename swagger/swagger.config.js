@@ -1088,6 +1088,52 @@ module.exports = {
     },
 
     // ─── PAYMENTS ────────────────────────────────────────────────────────────
+    '/payments/webhook/paystack': {
+      post: {
+        tags: ['Payments'],
+        summary: 'Paystack webhook — called by Paystack servers only',
+        description: 'Verifies HMAC-SHA512 signature. On `charge.success`, marks the matching payment as completed. Pass `paymentId` (MongoDB _id) in the Paystack transaction metadata so the webhook can find the record.',
+        parameters: [
+          {
+            name: 'x-paystack-signature',
+            in: 'header',
+            required: true,
+            schema: { type: 'string' },
+            description: 'HMAC-SHA512 of raw request body signed with PAYSTACK_SECRET_KEY',
+          },
+        ],
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  event: { type: 'string', example: 'charge.success' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      reference: { type: 'string', example: 'paystack_ref_abc123' },
+                      amount: { type: 'integer', example: 150000, description: 'Amount in kobo' },
+                      metadata: {
+                        type: 'object',
+                        properties: {
+                          paymentId: { type: 'string', example: '664abc123def456789012345' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: 'Webhook received and processed' },
+          400: { description: 'Missing signature' },
+          401: { description: 'Invalid webhook signature' },
+        },
+      },
+    },
     '/payments': {
       post: {
         tags: ['Payments'],

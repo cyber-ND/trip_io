@@ -32,6 +32,9 @@ const paymentSchema = new mongoose.Schema(
       enum: ["pending", "completed", "failed", "refunded"],
       default: "pending",
     },
+    paystackReference: {
+      type: String,
+    },
     paidAt: {
       type: Date,
     },

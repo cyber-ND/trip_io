@@ -8,7 +8,7 @@ const logger = require('./utils/logger')
 const app = express()
 
 app.use(cors())
-app.use(express.json())
+app.use(express.json({ verify: (req, _res, buf) => { req.rawBody = buf } }))
 app.use(morgan('dev', { stream: { write: (msg) => logger.http(msg.trim()) } }))
 
 app.use('/api', require('./routes/index'))
