@@ -33,4 +33,39 @@ const logout = asyncHandler(async (req, res) => {
   return apiResponse.success(res, 'Logout successful')
 })
 
-module.exports = { register, login, googleLogin, refreshToken, logout }
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body
+  await authService.forgotPassword(email)
+  return apiResponse.success(res, 'Password reset email sent')
+})
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params
+  const { password } = req.body
+  await authService.resetPassword(token, password)
+  return apiResponse.success(res, 'Password reset successful')
+})
+
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.params
+  await authService.verifyEmail(token)
+  return apiResponse.success(res, 'Email verified successfully')
+})
+
+const resendVerification = asyncHandler(async (req, res) => {
+  const { email } = req.body
+  await authService.resendVerification(email)
+  return apiResponse.success(res, 'Verification email sent')
+})
+
+module.exports = {
+  register,
+  login,
+  googleLogin,
+  refreshToken,
+  logout,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  resendVerification,
+}

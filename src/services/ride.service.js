@@ -2,6 +2,7 @@ const Ride = require("../models/ride.model");
 const Driver = require("../models/driver.model");
 const { calculateDistance } = require("../utils/distance");
 const logger = require("../utils/logger");
+const { AppError } = require("../middlewares/error.middleware");
 
 const FARE_BASE = 500;
 const FARE_PER_KM = 100;
@@ -52,10 +53,10 @@ const bookRide = async ({ riderId, pickup, dropoff }) => {
 
 const acceptRide = async (rideId, driverUserId) => {
   const ride = await Ride.findById(rideId);
-  if (!ride) throw new Error("Ride not found");
-  if (ride.status !== "pending") throw new Error("Ride is not pending");
+  if (!ride) throw new AppError("Ride not found", 404);
+  if (ride.status !== "pending") throw new AppError("Ride is not pending", 400);
   if (String(ride.driverId) !== String(driverUserId))
-    throw new Error("Not assigned to this driver");
+    throw new AppError("Not assigned to this driver", 403);
 
   ride.status = "accepted";
   await ride.save();
@@ -64,11 +65,11 @@ const acceptRide = async (rideId, driverUserId) => {
 
 const rejectRide = async (rideId, driverUserId) => {
   const ride = await Ride.findById(rideId);
-  if (!ride) throw new Error("Ride not found");
+  if (!ride) throw new AppError("Ride not found", 404);
   if (!["pending", "accepted"].includes(ride.status))
-    throw new Error("Ride cannot be rejected at this stage");
+    throw new AppError("Ride cannot be rejected at this stage", 400);
   if (String(ride.driverId) !== String(driverUserId))
-    throw new Error("Not assigned to this driver");
+    throw new AppError("Not assigned to this driver", 403);
 
   const prevDriverUserId = ride.driverId;
   ride.status = "rejected";
@@ -81,10 +82,10 @@ const rejectRide = async (rideId, driverUserId) => {
 
 const startRide = async (rideId, driverUserId) => {
   const ride = await Ride.findById(rideId);
-  if (!ride) throw new Error("Ride not found");
-  if (ride.status !== "accepted") throw new Error("Ride is not accepted");
+  if (!ride) throw new AppError("Ride not found", 404);
+  if (ride.status !== "accepted") throw new AppError("Ride is not accepted", 400);
   if (String(ride.driverId) !== String(driverUserId))
-    throw new Error("Not assigned to this driver");
+    throw new AppError("Not assigned to this driver", 403);
 
   ride.status = "ongoing";
   ride.startedAt = new Date();
@@ -94,10 +95,10 @@ const startRide = async (rideId, driverUserId) => {
 
 const completeRide = async (rideId, driverUserId) => {
   const ride = await Ride.findById(rideId);
-  if (!ride) throw new Error("Ride not found");
-  if (ride.status !== "ongoing") throw new Error("Ride is not ongoing");
+  if (!ride) throw new AppError("Ride not found", 404);
+  if (ride.status !== "ongoing") throw new AppError("Ride is not ongoing", 400);
   if (String(ride.driverId) !== String(driverUserId))
-    throw new Error("Not assigned to this driver");
+    throw new AppError("Not assigned to this driver", 403);
 
   ride.status = "completed";
   ride.completedAt = new Date();
@@ -114,11 +115,11 @@ const completeRide = async (rideId, driverUserId) => {
 
 const cancelRide = async (rideId, riderId, cancelReason) => {
   const ride = await Ride.findById(rideId);
-  if (!ride) throw new Error("Ride not found");
+  if (!ride) throw new AppError("Ride not found", 404);
   if (!["pending", "accepted"].includes(ride.status))
-    throw new Error("Ride cannot be cancelled at this stage");
+    throw new AppError("Ride cannot be cancelled at this stage", 400);
   if (String(ride.riderId) !== String(riderId))
-    throw new Error("Not your ride");
+    throw new AppError("Not your ride", 403);
 
   ride.status = "cancelled";
   ride.cancelledAt = new Date();
@@ -131,7 +132,7 @@ const getRideById = async (rideId) => {
   const ride = await Ride.findById(rideId)
     .populate("riderId", "name email phoneNumber profilePhoto")
     .populate("driverId", "name email phoneNumber profilePhoto");
-  if (!ride) throw new Error("Ride not found");
+  if (!ride) throw new AppError("Ride not found", 404);
   return ride;
 };
 

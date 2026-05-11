@@ -1,17 +1,18 @@
 const Rating = require("../models/rating.model");
 const Ride = require("../models/ride.model");
+const { AppError } = require("../middlewares/error.middleware");
 
 const rateDriver = async ({ rideId, riderId, stars, comment }) => {
   const ride = await Ride.findById(rideId);
-  if (!ride) throw new Error("Ride not found");
+  if (!ride) throw new AppError("Ride not found", 404);
   if (ride.status !== "completed")
-    throw new Error("Can only rate a completed ride");
+    throw new AppError("Can only rate a completed ride", 400);
   if (String(ride.riderId) !== String(riderId))
-    throw new Error("Not your ride");
-  if (!ride.driverId) throw new Error("No driver assigned to this ride");
+    throw new AppError("Not your ride", 403);
+  if (!ride.driverId) throw new AppError("No driver assigned to this ride", 400);
 
   const existing = await Rating.findOne({ rideId });
-  if (existing) throw new Error("Ride has already been rated");
+  if (existing) throw new AppError("Ride has already been rated", 400);
 
   const rating = await Rating.create({
     rideId,
@@ -48,7 +49,7 @@ const getRatingByRide = async (rideId) => {
   const rating = await Rating.findOne({ rideId })
     .populate("riderId", "name profilePhoto")
     .populate("driverId", "name");
-  if (!rating) throw new Error("Rating not found for this ride");
+  if (!rating) throw new AppError("Rating not found for this ride", 404);
   return rating;
 };
 

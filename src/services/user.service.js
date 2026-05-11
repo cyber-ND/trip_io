@@ -1,8 +1,9 @@
 const User = require("../models/user.model");
+const { AppError } = require("../middlewares/error.middleware");
 
 const getProfile = async (userId) => {
   const user = await User.findById(userId);
-  if (!user) throw new Error("User not found");
+  if (!user) throw new AppError("User not found", 404);
   return user;
 };
 
@@ -12,7 +13,7 @@ const updateProfile = async (userId, { name, phoneNumber, profilePhoto }) => {
     { name, phoneNumber, profilePhoto },
     { new: true, runValidators: true },
   );
-  if (!user) throw new Error("User not found");
+  if (!user) throw new AppError("User not found", 404);
   return user;
 };
 
@@ -35,7 +36,7 @@ const getAllUsers = async ({ page = 1, limit = 10 } = {}) => {
 
 const getUserById = async (userId) => {
   const user = await User.findById(userId);
-  if (!user) throw new Error("User not found");
+  if (!user) throw new AppError("User not found", 404);
   return user;
 };
 
@@ -45,7 +46,7 @@ const deactivateUser = async (userId) => {
     { isActive: false },
     { new: true },
   );
-  if (!user) throw new Error("User not found");
+  if (!user) throw new AppError("User not found", 404);
   return user;
 };
 
