@@ -1,9 +1,9 @@
 const request = require('supertest')
 const app = require('../../src/app')
 
-describe('POST /api/auth/register', () => {
+describe('POST /api/v1/auth/register', () => {
   it('returns 201 and tokens on valid registration', async () => {
-    const res = await request(app).post('/api/auth/register').send({
+    const res = await request(app).post('/api/v1/auth/register').send({
       name: 'Test User',
       email: 'test@example.com',
       password: 'Test@12345',
@@ -17,13 +17,13 @@ describe('POST /api/auth/register', () => {
   })
 
   it('returns 400 on duplicate email', async () => {
-    await request(app).post('/api/auth/register').send({
+    await request(app).post('/api/v1/auth/register').send({
       name: 'First User',
       email: 'dup@example.com',
       password: 'Test@12345',
     })
 
-    const res = await request(app).post('/api/auth/register').send({
+    const res = await request(app).post('/api/v1/auth/register').send({
       name: 'Second User',
       email: 'dup@example.com',
       password: 'Test@12345',
@@ -34,9 +34,9 @@ describe('POST /api/auth/register', () => {
   })
 })
 
-describe('POST /api/auth/login', () => {
+describe('POST /api/v1/auth/login', () => {
   beforeEach(async () => {
-    await request(app).post('/api/auth/register').send({
+    await request(app).post('/api/v1/auth/register').send({
       name: 'Login User',
       email: 'login@test.com',
       password: 'Login@12345',
@@ -44,7 +44,7 @@ describe('POST /api/auth/login', () => {
   })
 
   it('returns 200 and tokens on valid credentials', async () => {
-    const res = await request(app).post('/api/auth/login').send({
+    const res = await request(app).post('/api/v1/auth/login').send({
       email: 'login@test.com',
       password: 'Login@12345',
     })
@@ -55,7 +55,7 @@ describe('POST /api/auth/login', () => {
   })
 
   it('returns 401 on wrong password', async () => {
-    const res = await request(app).post('/api/auth/login').send({
+    const res = await request(app).post('/api/v1/auth/login').send({
       email: 'login@test.com',
       password: 'WrongPassword',
     })

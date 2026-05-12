@@ -3,7 +3,7 @@ const app = require('../../src/app')
 
 const registerAndLogin = async (role = 'rider') => {
   const email = `${role}_${Date.now()}@test.com`
-  const res = await request(app).post('/api/auth/register').send({
+  const res = await request(app).post('/api/v1/auth/register').send({
     name: `Test ${role}`,
     email,
     password: 'Test@12345',
@@ -12,12 +12,12 @@ const registerAndLogin = async (role = 'rider') => {
   return res.body.data.accessToken
 }
 
-describe('POST /api/rides', () => {
+describe('POST /api/v1/rides', () => {
   it('returns 201 when a rider books a ride', async () => {
     const token = await registerAndLogin('rider')
 
     const res = await request(app)
-      .post('/api/rides')
+      .post('/api/v1/rides')
       .set('Authorization', `Bearer ${token}`)
       .send({
         pickup: { address: 'Victoria Island', coordinates: [3.4, 6.5] },
@@ -33,7 +33,7 @@ describe('POST /api/rides', () => {
     const token = await registerAndLogin('driver')
 
     const res = await request(app)
-      .post('/api/rides')
+      .post('/api/v1/rides')
       .set('Authorization', `Bearer ${token}`)
       .send({
         pickup: { address: 'Victoria Island', coordinates: [3.4, 6.5] },
@@ -45,7 +45,7 @@ describe('POST /api/rides', () => {
   })
 
   it('returns 401 without a token', async () => {
-    const res = await request(app).post('/api/rides').send({
+    const res = await request(app).post('/api/v1/rides').send({
       pickup: { address: 'Victoria Island', coordinates: [3.4, 6.5] },
       dropoff: { address: 'Lekki', coordinates: [3.45, 6.55] },
     })
@@ -54,12 +54,12 @@ describe('POST /api/rides', () => {
   })
 })
 
-describe('GET /api/rides/my', () => {
+describe('GET /api/v1/rides/my', () => {
   it('returns paginated rides for the authenticated user', async () => {
     const token = await registerAndLogin('rider')
 
     const res = await request(app)
-      .get('/api/rides/my')
+      .get('/api/v1/rides/my')
       .set('Authorization', `Bearer ${token}`)
 
     expect(res.status).toBe(200)

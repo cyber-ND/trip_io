@@ -11,7 +11,7 @@ app.use(cors())
 app.use(express.json({ verify: (req, _res, buf) => { req.rawBody = buf } }))
 app.use(morgan('dev', { stream: { write: (msg) => logger.http(msg.trim()) } }))
 
-app.use('/api', require('./routes/index'))
+app.use('/api/v1', require('./routes/index'))
 
 try {
   const swaggerUi = require('swagger-ui-express')

@@ -7,7 +7,7 @@ module.exports = {
       'Ride-sharing REST API. Riders book rides, drivers accept and complete them. All protected routes require a Bearer JWT access token.',
     contact: { name: 'cyber-ND' },
   },
-  servers: [{ url: `http://localhost:${process.env.PORT || 3000}/api`, description: 'Local development' }],
+  servers: [{ url: `http://localhost:${process.env.PORT || 3000}/api/v1`, description: 'Local development' }],
   tags: [
     { name: 'Auth', description: 'Register, login, tokens, password reset, email verification' },
     { name: 'Users', description: 'Rider / admin profile management' },

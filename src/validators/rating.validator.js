@@ -5,7 +5,7 @@ const rateDriverRules = [
   body('stars')
     .isInt({ min: 1, max: 5 })
     .withMessage('Stars must be an integer between 1 and 5'),
-  body('comment').optional().trim(),
+  body('comment').optional().trim().escape(),
 ]
 
 module.exports = { rateDriverRules }

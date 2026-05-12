@@ -5,7 +5,7 @@ const User = require('../../src/models/user.model')
 
 const registerAndLogin = async (role = 'rider') => {
   const email = `${role}_${Date.now()}@test.com`
-  const res = await request(app).post('/api/auth/register').send({
+  const res = await request(app).post('/api/v1/auth/register').send({
     name: `Test ${role}`,
     email,
     password: 'Test@12345',
@@ -14,7 +14,7 @@ const registerAndLogin = async (role = 'rider') => {
   return { token: res.body.data.accessToken, userId: res.body.data.user._id }
 }
 
-describe('POST /api/payments', () => {
+describe('POST /api/v1/payments', () => {
   it('returns 201 when payment is initiated for a completed ride', async () => {
     const { token, userId } = await registerAndLogin('rider')
 
@@ -34,7 +34,7 @@ describe('POST /api/payments', () => {
     })
 
     const res = await request(app)
-      .post('/api/payments')
+      .post('/api/v1/payments')
       .set('Authorization', `Bearer ${token}`)
       .send({ rideId: ride._id, method: 'cash' })
 
@@ -63,12 +63,12 @@ describe('POST /api/payments', () => {
     })
 
     await request(app)
-      .post('/api/payments')
+      .post('/api/v1/payments')
       .set('Authorization', `Bearer ${token}`)
       .send({ rideId: ride._id, method: 'cash' })
 
     const res = await request(app)
-      .post('/api/payments')
+      .post('/api/v1/payments')
       .set('Authorization', `Bearer ${token}`)
       .send({ rideId: ride._id, method: 'cash' })
 
@@ -77,12 +77,12 @@ describe('POST /api/payments', () => {
   })
 })
 
-describe('GET /api/payments/my', () => {
+describe('GET /api/v1/payments/my', () => {
   it('returns 200 with paginated payments', async () => {
     const { token } = await registerAndLogin('rider')
 
     const res = await request(app)
-      .get('/api/payments/my')
+      .get('/api/v1/payments/my')
       .set('Authorization', `Bearer ${token}`)
 
     expect(res.status).toBe(200)

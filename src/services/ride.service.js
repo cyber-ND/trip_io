@@ -103,6 +103,9 @@ const completeRide = async (rideId, driverUserId) => {
   ride.status = "completed";
   ride.completedAt = new Date();
   ride.fare.final = ride.fare.estimated;
+  if (ride.startedAt) {
+    ride.duration = Math.round((ride.completedAt - ride.startedAt) / 60000);
+  }
   await ride.save();
 
   await Driver.findOneAndUpdate(
