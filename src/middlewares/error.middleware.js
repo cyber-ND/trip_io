@@ -1,35 +1,52 @@
+const logger = require("../utils/logger");
 
-// I just thought we'll have a need for this
 class AppError extends Error {
-    constructor(message, statusCode) {
-        super(message);
-        this.statusCode = statusCode;
-    }
-} // We could use it like this: throw new AppError('User not found', 404); much later in our logic
-
-// This is the general error handler
-const errorhandler = (err, req, res, next) => {
-    console.error('Error:', err.message);
-
-    let statusCode = err.statusCode || 500;
-    let message = err.message || 'Internal Server Error';
-
-    if (err.name === 'JsonWebTokenError') {
-        statusCode = 401;
-        message = 'Invalid token';
-    }
-
-    if (err.name === 'TokenExpiredError') {
-        statusCode = 401;
-        message = 'Token expired';
-    }
-
-
-    res.status(statusCode).json({
-        success: false,
-        message,
-        ...process.env.NODE_ENV === 'development' && { stack: err.stack }
-    });
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+  }
 }
 
-module.exports = { AppError, errorhandler };
+const errorHandler = (err, req, res, _next) => {
+  logger.error("Error: " + err.message);
+
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Internal Server Error";
+
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    message = Object.values(err.errors)
+      .map((e) => e.message)
+      .join(", ");
+  }
+
+  if (err.name === "CastError") {
+    statusCode = 400;
+    message = "Invalid ID";
+  }
+
+  if (err.code === 11000) {
+    statusCode = 400;
+    const field = Object.keys(err.keyValue)[0];
+    message = `${field} already exists`;
+  }
+
+  if (err.name === "JsonWebTokenError") {
+    statusCode = 401;
+    message = "Invalid token";
+  }
+
+  if (err.name === "TokenExpiredError") {
+    statusCode = 401;
+    message = "Token expired";
+  }
+
+  res.status(statusCode).json({
+    success: false,
+    message,
+    errors: [],
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+};
+
+module.exports = { AppError, errorHandler };

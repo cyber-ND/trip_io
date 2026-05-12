@@ -1,23 +1,18 @@
+const { validationResult } = require("express-validator")
+const apiResponse = require("../utils/apiResponse")
 
-const validate = (schema) => (req, res, next) => {
-    const result = schema.safeParse(req.body);
+const validate = (req, res, next) => {
+  const errors = validationResult(req)
 
-    if (!result.success) {
-        const formattedErrors = result.error.errors.map(err => ({
-            field: err.path.join('.'),
-            message: err.message,
-        }));
+  if (!errors.isEmpty()) {
+    const formattedErrors = errors.array().map((err) => ({
+      field: err.path,
+      message: err.msg,
+    }))
+    return apiResponse.error(res, "Validation failed", 400, formattedErrors)
+  }
 
-     return res.status(400).json({
-            success: false,
-            message: 'Validation failed',
-            errors: formattedErrors,
-        });
-
+  next()
 }
 
-req.validatedData = result.data;
-next();
-}
-
-module.exports = { validate };
+module.exports = { validate }
