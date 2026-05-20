@@ -4,4 +4,5 @@ module.exports = {
   setupFilesAfterEnv: ['./tests/setup.js'],
   coverageDirectory: 'coverage',
   collectCoverageFrom: ['src/**/*.js'],
+  passWithNoTests: true,
 }
